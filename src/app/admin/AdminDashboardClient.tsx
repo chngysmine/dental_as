@@ -1,0 +1,97 @@
+"use client";
+
+import Navbar from "../../components/Navbar";
+import { useUser } from "@clerk/nextjs";
+import { Settings as SettingsIcon } from "lucide-react";
+import { useGetDoctors } from "../../hooks/use-doctors";
+import { useGetAppointments } from "../../hooks/use-appointments";
+import AdminStats from "../../components/admin/AdminStats";
+import DoctorsManagement from "@/components/admin/DoctorsManagement";
+
+function LoadingUI() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="max-w-7xl mx-auto px-6 py-8 pt-24">
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminDashboardClient() {
+  const { user } = useUser();
+  const { data: doctors = [], isLoading: doctorsLoading, error: doctorsError } = useGetDoctors();
+  const { data: appointments = [], isLoading: appointmentsLoading, error: appointmentsError } = useGetAppointments();
+
+  // calculate stats
+  const stats = {
+    totalDoctors: doctors.length,
+    activeDoctors: doctors.filter((doc) => doc.isActive).length,
+    totalAppointments: appointments.length,
+    completedAppointments: appointments.filter((app) => app.status === "COMPLETED").length,
+  };
+
+  if (doctorsLoading || appointmentsLoading) {
+    return <LoadingUI />;
+  }
+
+  if (doctorsError || appointmentsError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-destructive mb-2">Error loading data</p>
+          <p className="text-sm text-muted-foreground">
+            {doctorsError?.message || appointmentsError?.message || "Please try refreshing the page"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="container mx-auto px-6 py-8 pt-24">
+        {/* ADMIN WELCOME SECTION */}
+        <div className="mb-12 flex items-center justify-between bg-gradient-to-br from-primary/10 via-primary/5 to-background rounded-3xl p-8 border border-primary/20">
+          <div className="space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+              <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+              <span className="text-sm font-medium text-primary">Admin Dashboard</span>
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold mb-2">
+                Welcome back, {user?.firstName || "Admin"}!
+              </h1>
+              <p className="text-muted-foreground">
+                Manage doctors, oversee appointments, and monitor your dental practice performance.
+              </p>
+            </div>
+          </div>
+          <div className="hidden lg:block">
+            <div className="w-32 h-32 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center">
+              <SettingsIcon className="w-16 h-16 text-primary" />
+            </div>
+          </div>
+        </div>
+
+        <AdminStats
+          totalDoctors={stats.totalDoctors}
+          activeDoctors={stats.activeDoctors}
+          totalAppointments={stats.totalAppointments}
+          completedAppointments={stats.completedAppointments}
+        />
+        <DoctorsManagement />
+      </div>
+    </div>
+  );
+}
+
+export default AdminDashboardClient;
+
