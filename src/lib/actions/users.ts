@@ -9,7 +9,14 @@ export async function syncUser() {
     try {
       user = await currentUser();
     } catch (clerkError: any) {
-      console.error("Clerk API error:", clerkError);
+      // Log as warning in development, silent in production
+      if (process.env.NODE_ENV === "development") {
+        console.warn("Clerk API error (handled gracefully):", {
+          code: clerkError?.code,
+          message: clerkError?.message || "Unknown error",
+          status: clerkError?.status,
+        });
+      }
       // If Clerk API fails, return null instead of throwing
       return null;
     }
@@ -19,9 +26,17 @@ export async function syncUser() {
       return null;
     }
 
-    const existingUser = await prisma.user.findUnique({
+    let existingUser;
+    try {
+      existingUser = await prisma.user.findUnique({
       where: { clerkID: user.id },
     });
+    } catch (dbError: any) {
+      console.error("Database connection error:", dbError);
+      // If database is unreachable, return null instead of crashing
+      return null;
+    }
+
     if (existingUser) {
       console.log("User already exists:", existingUser.id);
       return existingUser;
@@ -34,7 +49,9 @@ export async function syncUser() {
       throw new Error("User email is required");
     }
 
-    const dbUser = await prisma.user.create({
+    let dbUser;
+    try {
+      dbUser = await prisma.user.create({
       data: {
         clerkID: user.id,
         firstName: user.firstName || null,
@@ -43,12 +60,18 @@ export async function syncUser() {
         phone: user.phoneNumbers?.[0]?.phoneNumber || null,
       },
     });
-    
     console.log("User created successfully:", dbUser.id);
+    } catch (dbError: any) {
+      console.error("Database error creating user:", dbError);
+      // If database is unreachable, return null instead of crashing
+      return null;
+    }
+    
     return dbUser;
   } catch (error) {
     console.error("Error syncing user:", error);
-    throw error;
+    // Don't throw - return null to prevent app crashes
+    return null;
   }
 }
 

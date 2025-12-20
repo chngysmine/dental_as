@@ -16,6 +16,7 @@ import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface EditDoctorDialogProps {
   isOpen: boolean;
@@ -59,7 +60,16 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
 
     updateDoctorMutation.mutate(
       { id: doctor.id, ...editedDoctor },
-      { onSuccess: handleClose }
+      {
+        onSuccess: () => {
+          toast.success("Doctor updated successfully");
+          handleClose();
+        },
+        onError: (error: any) => {
+          const errorMessage = error?.message || "Failed to update doctor";
+          toast.error(errorMessage);
+        },
+      }
     );
   };
 

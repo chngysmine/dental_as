@@ -34,3 +34,60 @@ export function formatPhoneNumber(value: string): string {
     return `${phoneNumber.slice(0, 4)} ${phoneNumber.slice(4, 7)} ${phoneNumber.slice(7, 10)}`;
   }
 }
+
+// Appointment types configuration
+export const APPOINTMENT_TYPES = [
+  {
+    id: "consultation",
+    name: "General Consultation",
+    duration: "30 minutes",
+    price: "$50",
+  },
+  {
+    id: "cleaning",
+    name: "Teeth Cleaning",
+    duration: "45 minutes",
+    price: "$75",
+  },
+  {
+    id: "checkup",
+    name: "Routine Checkup",
+    duration: "30 minutes",
+    price: "$60",
+  },
+  {
+    id: "emergency",
+    name: "Emergency Visit",
+    duration: "60 minutes",
+    price: "$120",
+  },
+];
+
+// Get available time slots
+export function getAvailableTimeSlots(): string[] {
+  const slots: string[] = [];
+  const startHour = 9; // 9 AM
+  const endHour = 17; // 5 PM
+  
+  for (let hour = startHour; hour < endHour; hour++) {
+    slots.push(`${hour.toString().padStart(2, "0")}:00`);
+    slots.push(`${hour.toString().padStart(2, "0")}:30`);
+  }
+  
+  return slots;
+}
+
+// Get next 5 days as date strings (YYYY-MM-DD format)
+export function getNext5Days(): string[] {
+  const days: string[] = [];
+  const today = new Date();
+  
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const dateString = date.toISOString().split("T")[0];
+    days.push(dateString);
+  }
+  
+  return days;
+}

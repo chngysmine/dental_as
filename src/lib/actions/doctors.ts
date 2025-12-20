@@ -18,8 +18,13 @@ export async function getDoctors() {
       ...doctor,
       appointmentCount: doctor._count.appointments,
     }));
-  } catch (error) {
-    console.log("Error fetching doctors:", error);
+  } catch (error: any) {
+    console.error("Error fetching doctors:", error);
+    // If database connection fails, return empty array instead of throwing
+    if (error?.code === "P1001" || error?.message?.includes("Can't reach database server")) {
+      console.error("Database connection error - returning empty array");
+      return [];
+    }
     throw new Error("Failed to fetch doctors");
   }
 }
@@ -99,9 +104,22 @@ export async function updateDoctor(input: UpdateDoctorInput) {
       },
     });
 
+    revalidatePath("/admin");
+
     return doctor;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating doctor:", error);
+
+    // Preserve specific error messages
+    if (error?.message && error.message !== "Failed to update doctor") {
+      throw error;
+    }
+
+    // handle unique constraint violation (email already exists)
+    if (error?.code === "P2002") {
+      throw new Error("A doctor with this email already exists");
+    }
+
     throw new Error("Failed to update doctor");
   }
 }
@@ -122,8 +140,13 @@ export async function getAvailableDoctors() {
       ...doctor,
       appointmentCount: doctor._count.appointments,
     }));
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching available doctors:", error);
+    // If database connection fails, return empty array instead of throwing
+    if (error?.code === "P1001" || error?.message?.includes("Can't reach database server")) {
+      console.error("Database connection error - returning empty array");
+      return [];
+    }
     throw new Error("Failed to fetch available doctors");
   }
 }

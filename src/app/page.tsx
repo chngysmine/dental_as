@@ -9,7 +9,14 @@ import PricingSection from "../components/landing/PricingSection";
 import WhatToAsk from "../components/landing/WhatToAsk";
 
 export default async function Home() {
-  const user = await currentUser();
+  let user;
+  try {
+    user = await currentUser();
+  } catch (error) {
+    console.error("Clerk API error:", error);
+    // If Clerk API fails, continue without user (show landing page)
+    user = null;
+  }
   if (user) redirect("/dashboard");
   return (
     <div className="min-h-screen bg-background">

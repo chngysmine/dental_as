@@ -2,53 +2,148 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar } from "lucide-react";
+import { useGetAppointments } from "@/hooks/use-appointments";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { format } from "date-fns";
+import { AppointmentStatus } from "@prisma/client";
+import { updateAppointmentStatus } from "@/lib/actions/appointments";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+const statusOrder: AppointmentStatus[] = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
+
+function getNextStatus(currentStatus: AppointmentStatus): AppointmentStatus {
+  const currentIndex = statusOrder.indexOf(currentStatus);
+  const nextIndex = (currentIndex + 1) % statusOrder.length;
+  return statusOrder[nextIndex];
+}
+
+function formatStatus(status: AppointmentStatus): string {
+  return status.charAt(0) + status.slice(1).toLowerCase();
+}
+
+function getStatusVariant(status: AppointmentStatus): "default" | "secondary" | "destructive" | "outline" {
+  switch (status) {
+    case "CONFIRMED":
+      return "default";
+    case "COMPLETED":
+      return "secondary";
+    case "CANCELLED":
+      return "destructive";
+    case "PENDING":
+      return "outline";
+    default:
+      return "secondary";
+  }
+}
 
 export default function RecentAppointments() {
-  // Placeholder data - replace with actual data
-  const appointments = [];
+  const { data: appointments = [], isLoading } = useGetAppointments();
+  const queryClient = useQueryClient();
+
+  const updateStatusMutation = useMutation({
+    mutationFn: updateAppointmentStatus,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getAppointments"] });
+      toast.success("Appointment status updated");
+    },
+    onError: (error: Error) => {
+      toast.error(`Failed to update status: ${error.message}`);
+    },
+  });
+
+  const handleStatusClick = (appointmentId: string, currentStatus: AppointmentStatus) => {
+    const newStatus = getNextStatus(currentStatus);
+    updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
+  };
+
+  const formatDateTime = (date: string, time: string) => {
+    try {
+      const dateObj = new Date(date);
+      const formattedDate = format(dateObj, "M/d/yyyy");
+      return `${formattedDate}, ${time}`;
+    } catch {
+      return `${date}, ${time}`;
+    }
+  };
 
   return (
     <Card className="border-border/50">
       <CardHeader>
         <CardTitle>Recent Appointments</CardTitle>
+        <p className="text-sm text-muted-foreground mt-1">
+          Monitor and manage all patient appointments
+        </p>
       </CardHeader>
       <CardContent>
-        {appointments.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p>Loading appointments...</p>
+          </div>
+        ) : appointments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <p>No recent appointments</p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {appointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className="flex items-center justify-between p-4 border border-border/50 rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{appointment.patientName}</p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Patient</TableHead>
+                <TableHead>Doctor</TableHead>
+                <TableHead>Date & Time</TableHead>
+                <TableHead>Reason</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {appointments.map((appointment: any) => (
+                <TableRow key={appointment.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{appointment.patientName || "Unknown"}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {appointment.patientEmail}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <p className="font-medium">{appointment.doctorName}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p>{formatDateTime(appointment.date, appointment.time)}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p>{appointment.reason || "General Consultation"}</p>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={getStatusVariant(appointment.status)}
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => handleStatusClick(appointment.id, appointment.status)}
+                    >
+                      {formatStatus(appointment.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
                     <p className="text-sm text-muted-foreground">
-                      {appointment.doctorName}
+                      Click status to toggle
                     </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="w-4 h-4" />
-                    {appointment.time}
-                  </div>
-                  <Badge variant={appointment.status === "completed" ? "default" : "secondary"}>
-                    {appointment.status}
-                  </Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </CardContent>
     </Card>
