@@ -166,13 +166,33 @@ function DashboardClient() {
                     className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <CalendarIcon className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {appointment.doctor?.imageUrl && appointment.doctor.imageUrl.trim() ? (
+                          <img
+                            src={appointment.doctor.imageUrl}
+                            alt={appointment.doctor?.name || "Doctor"}
+                            className="w-12 h-12 rounded-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent && !parent.querySelector('span')) {
+                                const name = appointment.doctor?.name || "Doctor";
+                                const initial = name.charAt(0).toUpperCase();
+                                parent.innerHTML = `<span class="text-primary font-semibold text-lg">${initial}</span>`;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span className="text-primary font-semibold text-lg">
+                            {(appointment.doctor?.name || "D").charAt(0).toUpperCase()}
+                          </span>
+                        )}
                       </div>
                       <div>
-                        <div className="font-semibold">{appointment.doctor.name}</div>
+                        <div className="font-semibold">{appointment.doctor?.name || "Unknown Doctor"}</div>
                         <div className="text-sm text-muted-foreground">
-                          {appointment.doctor.speciality}
+                          {appointment.doctor?.speciality || "General Dentistry"}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
                           {formatDate(appointment.date)} at {appointment.time}

@@ -24,17 +24,49 @@ function LoadingUI() {
   );
 }
 
+type AppointmentWithRelations = {
+  id: string;
+  date: string;
+  time: string;
+  duration: number;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  notes?: string | null;
+  reason?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  doctorId: string;
+  doctorName: string;
+  doctorEmail: string;
+  doctorImageUrl: string;
+  patientEmail: string;
+  patientName: string;
+};
+
 function AdminDashboardClient() {
   const { user } = useUser();
-  const { data: doctors = [], isLoading: doctorsLoading, error: doctorsError } = useGetDoctors();
-  const { data: appointments = [], isLoading: appointmentsLoading, error: appointmentsError } = useGetAppointments();
+  const {
+    data: doctors = [],
+    isLoading: doctorsLoading,
+    error: doctorsError,
+  } = useGetDoctors();
+  const {
+    data: appointments = [],
+    isLoading: appointmentsLoading,
+    error: appointmentsError,
+  } = useGetAppointments();
+
+  // Type assertion for appointments
+  const typedAppointments = appointments as AppointmentWithRelations[];
 
   // calculate stats
   const stats = {
     totalDoctors: doctors.length,
     activeDoctors: doctors.filter((doc) => doc.isActive).length,
-    totalAppointments: appointments.length,
-    completedAppointments: appointments.filter((app) => app.status === "COMPLETED").length,
+    totalAppointments: typedAppointments.length,
+    completedAppointments: typedAppointments.filter(
+      (app) => app.status === "COMPLETED",
+    ).length,
   };
 
   if (doctorsLoading || appointmentsLoading) {
@@ -47,7 +79,9 @@ function AdminDashboardClient() {
         <div className="text-center">
           <p className="text-destructive mb-2">Error loading data</p>
           <p className="text-sm text-muted-foreground">
-            {doctorsError?.message || appointmentsError?.message || "Please try refreshing the page"}
+            {doctorsError?.message ||
+              appointmentsError?.message ||
+              "Please try refreshing the page"}
           </p>
         </div>
       </div>
@@ -63,14 +97,17 @@ function AdminDashboardClient() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-primary">Admin Dashboard</span>
+              <span className="text-sm font-medium text-primary">
+                Admin Dashboard
+              </span>
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-2">
                 Welcome back, {user?.firstName || "Admin"}!
               </h1>
               <p className="text-muted-foreground">
-                Manage doctors, oversee appointments, and monitor your dental practice performance.
+                Manage doctors, oversee appointments, and monitor your dental
+                practice performance.
               </p>
             </div>
           </div>
@@ -94,4 +131,3 @@ function AdminDashboardClient() {
 }
 
 export default AdminDashboardClient;
-

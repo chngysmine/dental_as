@@ -13,7 +13,13 @@ import {
 } from "../ui/dialog";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { Button } from "../ui/button";
 import { formatPhoneNumber } from "@/lib/utils";
 
@@ -23,7 +29,11 @@ interface EditDoctorDialogProps {
   doctor: Doctor | null;
 }
 
-export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctorDialogProps) {
+export default function EditDoctorDialog({
+  isOpen,
+  onClose,
+  doctor,
+}: EditDoctorDialogProps) {
   const [editedDoctor, setEditedDoctor] = useState({
     name: "",
     email: "",
@@ -59,7 +69,7 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
 
     updateDoctorMutation.mutate(
       { id: doctor.id, ...editedDoctor },
-      { onSuccess: handleClose }
+      { onSuccess: handleClose },
     );
   };
 
@@ -86,7 +96,9 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Doctor</DialogTitle>
-          <DialogDescription>Update doctor information and status.</DialogDescription>
+          <DialogDescription>
+            Update doctor information and status.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
@@ -96,7 +108,9 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
               <Input
                 id="edit-name"
                 value={editedDoctor.name}
-                onChange={(e) => setEditedDoctor({ ...editedDoctor, name: e.target.value })}
+                onChange={(e) =>
+                  setEditedDoctor({ ...editedDoctor, name: e.target.value })
+                }
                 placeholder="Dr. Tuan Cot Dinh"
               />
             </div>
@@ -105,7 +119,12 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
               <Input
                 id="edit-speciality"
                 value={editedDoctor.speciality}
-                onChange={(e) => setEditedDoctor({ ...editedDoctor, speciality: e.target.value })}
+                onChange={(e) =>
+                  setEditedDoctor({
+                    ...editedDoctor,
+                    speciality: e.target.value,
+                  })
+                }
                 placeholder="General Dentistry"
               />
             </div>
@@ -117,7 +136,9 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
               id="edit-email"
               type="email"
               value={editedDoctor.email}
-              onChange={(e) => setEditedDoctor({ ...editedDoctor, email: e.target.value })}
+              onChange={(e) =>
+                setEditedDoctor({ ...editedDoctor, email: e.target.value })
+              }
               placeholder="doctor@example.com"
             />
           </div>
@@ -136,7 +157,9 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
               <Label htmlFor="edit-gender">Gender</Label>
               <Select
                 value={editedDoctor.gender || ""}
-                onValueChange={(value) => setEditedDoctor({ ...editedDoctor, gender: value as Gender })}
+                onValueChange={(value) =>
+                  setEditedDoctor({ ...editedDoctor, gender: value as Gender })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select gender" />
@@ -153,7 +176,10 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
               <Select
                 value={editedDoctor.isActive ? "active" : "inactive"}
                 onValueChange={(value) =>
-                  setEditedDoctor({ ...editedDoctor, isActive: value === "active" })
+                  setEditedDoctor({
+                    ...editedDoctor,
+                    isActive: value === "active",
+                  })
                 }
               >
                 <SelectTrigger>
@@ -190,4 +216,3 @@ export default function EditDoctorDialog({ isOpen, onClose, doctor }: EditDoctor
     </Dialog>
   );
 }
-

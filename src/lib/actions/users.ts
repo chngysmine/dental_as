@@ -13,7 +13,7 @@ export async function syncUser() {
       // If Clerk API fails, return null instead of throwing
       return null;
     }
-    
+
     if (!user) {
       console.log("No user found");
       return null;
@@ -43,7 +43,7 @@ export async function syncUser() {
         phone: user.phoneNumbers?.[0]?.phoneNumber || null,
       },
     });
-    
+
     console.log("User created successfully:", dbUser.id);
     return dbUser;
   } catch (error) {
@@ -51,4 +51,3 @@ export async function syncUser() {
     throw error;
   }
 }
-

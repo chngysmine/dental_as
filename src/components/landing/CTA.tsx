@@ -15,7 +15,9 @@ function CTA() {
             <div className="space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-primary/5 to-primary/10 rounded-full border border-primary/10">
                 <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                <span className="text-xs font-medium text-primary">Ready When You Are</span>
+                <span className="text-xs font-medium text-primary">
+                  Ready When You Are
+                </span>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold leading-tight">
                 <span className="bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -27,7 +29,8 @@ function CTA() {
                 </span>
               </h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Join 1,200+ patients who trust our AI for instant guidance and personalized care.
+                Join 1,200+ patients who trust our AI for instant guidance and
+                personalized care.
               </p>
             </div>
             {/* CTA Buttons */}
@@ -57,7 +60,7 @@ function CTA() {
           <div className="relative flex justify-center lg:justify-end">
             <div className="relative">
               {/* Floating Badge */}
-              <div className="absolute -top-4 left-4 bg-gradient-to-r from-green-500/90 to-emerald-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg z-10">
+              <div className="absolute -top-4 left-4 bg-gradient-to-r from-primary/90 to-primary/80 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full text-xs font-medium shadow-lg z-10">
                 <div className="flex items-center gap-1">
                   <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
                   Available 24/7

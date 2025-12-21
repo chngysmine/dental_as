@@ -9,17 +9,25 @@ import PricingSection from "../components/landing/PricingSection";
 import WhatToAsk from "../components/landing/WhatToAsk";
 
 export default async function Home() {
-  const user = await currentUser();
+  let user: Awaited<ReturnType<typeof currentUser>> | null = null;
+  try {
+    user = await currentUser();
+  } catch (error) {
+    // If Clerk API fails, continue without redirecting
+    console.error("Clerk API error in Home:", error);
+    user = null;
+  }
+
   if (user) redirect("/dashboard");
   return (
     <div className="min-h-screen bg-background">
-       <Headers/>
-       <Hero/>
-       <HowItWorks/>
-       <WhatToAsk/>
-       <PricingSection/>
-       <CTA/>
-       <Footer/>
+      <Headers />
+      <Hero />
+      <HowItWorks />
+      <WhatToAsk />
+      <PricingSection />
+      <CTA />
+      <Footer />
     </div>
   );
 }

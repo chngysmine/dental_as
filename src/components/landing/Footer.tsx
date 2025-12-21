@@ -81,8 +81,7 @@ function Footer() {
             </ul>
           </div>
         </div>
-        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-        </div>
+        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground"></div>
       </div>
     </footer>
   );

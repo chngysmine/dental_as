@@ -19,8 +19,8 @@ export default function AdminStats({
       title: "Total Doctors",
       value: totalDoctors,
       icon: Users,
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Active Doctors",
@@ -33,8 +33,8 @@ export default function AdminStats({
       title: "Total Appointments",
       value: totalAppointments,
       icon: Calendar,
-      color: "text-orange-500",
-      bgColor: "bg-orange-500/10",
+      color: "text-primary",
+      bgColor: "bg-primary/10",
     },
     {
       title: "Completed",
@@ -68,4 +68,3 @@ export default function AdminStats({
     </div>
   );
 }
-

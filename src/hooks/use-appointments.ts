@@ -1,6 +1,9 @@
 "use client";
 
-import { getAppointments, getUserAppointments } from "@/lib/actions/appointments";
+import {
+  getAppointments,
+  getUserAppointments,
+} from "@/lib/actions/appointments";
 import { useQuery } from "@tanstack/react-query";
 
 export function useGetAppointments() {
@@ -20,4 +23,3 @@ export function useGetUserAppointments() {
 
   return result;
 }
-

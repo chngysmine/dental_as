@@ -11,7 +11,7 @@ function Hero() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] opacity-20"></div>
       <div className="absolute top-20 left-1/4 w-72 h-72 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-gradient-to-r from-primary/15 to-primary/5 rounded-full blur-3xl" />
-      
+
       <div className="relative z-10 w-full px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -21,21 +21,33 @@ function Hero() {
                 {/* BADGE */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-primary/5 rounded-full border border-primary/20 backdrop-blur-sm">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                  <span className="text-sm font-medium text-primary">AI-Powered Dental Assistant</span>
+                  <span className="text-sm font-medium text-primary">
+                    AI-Powered Dental Assistant
+                  </span>
                 </div>
                 {/* main heading */}
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">Your dental</span>
+                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Your dental
+                  </span>
                   <br />
-                  <span className="bg-gradient-to-r from-primary to-primary/78 bg-clip-text text-transparent">questions</span>
+                  <span className="bg-gradient-to-r from-primary to-primary/78 bg-clip-text text-transparent">
+                    questions
+                  </span>
                   <br />
-                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">answered</span>
+                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                    answered
+                  </span>
                   <br />
-                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">instantly</span>
+                  <span className="bg-gradient-to-br from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+                    instantly
+                  </span>
                 </h1>
                 {/* SUBTITLE */}
                 <p className="text-lg text-muted-foreground leading-relaxed max-w-xl font-medium">
-                  Chat with our AI dental assistant for instant advice, book smart appointments, and get personalized care recommendations. Available 24/7.
+                  Chat with our AI dental assistant for instant advice, book
+                  smart appointments, and get personalized care recommendations.
+                  Available 24/7.
                 </p>
                 {/* CTA BUTTONS */}
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -100,15 +112,19 @@ function Hero() {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
-                            className="h-4 w-4 fill-amber-400 text-amber-400"
+                            className="h-4 w-4 fill-primary text-primary"
                           />
                         ))}
                       </div>
-                      <span className="text-sm font-bold text-foreground">4.9/5</span>
+                      <span className="text-sm font-bold text-foreground">
+                        4.9/5
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Trusted by{" "}
-                      <span className="font-semibold text-foreground">1,200+ patients</span>
+                      <span className="font-semibold text-foreground">
+                        1,200+ patients
+                      </span>
                     </p>
                   </div>
                 </div>
