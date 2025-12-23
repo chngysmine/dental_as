@@ -87,9 +87,26 @@ function VapiWidget() {
       // Log full error details for debugging
       console.error("Vapi Error:", error);
       console.error("Error stringified:", JSON.stringify(error, null, 2));
-      
+
       // Extract error information from VAPI error structure
-      const errorMessage = error?.error?.message?.message || error?.error?.error?.message || error?.error?.message || error?.message;
+      const errorMessage =
+        error?.error?.message?.message ||
+        error?.error?.error?.message ||
+        error?.error?.message ||
+        error?.message;
+
+      // Ignore benign "meeting ended" errors so they don't scare users in console/UI
+      if (
+        typeof errorMessage === "string" &&
+        errorMessage.toLowerCase().includes("meeting has ended")
+      ) {
+        console.info("Vapi: meeting ended normally:", errorMessage);
+        setConnecting(false);
+        setCallActive(false);
+        setCallEnded(true);
+        return;
+      }
+
       const statusCode = error?.error?.message?.statusCode || error?.error?.error?.statusCode || error?.statusCode || error?.status;
       const errorType = error?.error?.error?.error || error?.error?.error || error?.type;
       
