@@ -25,7 +25,9 @@ function BookingConfirmationStep({
   onConfirm,
   onModify,
 }: BookingConfirmationStepProps) {
-  const appointmentType = APPOINTMENT_TYPES.find((t: { id: string }) => t.id === selectedType);
+  const appointmentType = APPOINTMENT_TYPES.find(
+    (t: { id: string }) => t.id === selectedType,
+  );
 
   return (
     <div className="space-y-6">
@@ -78,7 +80,9 @@ function BookingConfirmationStep({
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Cost</p>
-              <p className="font-medium text-primary">{appointmentType?.price}</p>
+              <p className="font-medium text-primary">
+                {appointmentType?.price}
+              </p>
             </div>
           </div>
         </CardContent>

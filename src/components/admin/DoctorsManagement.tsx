@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetDoctors } from "@/hooks/use-doctors";
+import { useDeleteDoctor, useGetDoctors } from "@/hooks/use-doctors";
 import { useState } from "react";
 import {
   Card,
@@ -15,6 +15,7 @@ import {
   PhoneIcon,
   PlusIcon,
   StethoscopeIcon,
+  TrashIcon,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import Image from "next/image";
@@ -23,14 +24,32 @@ import { Doctor } from "@prisma/client";
 import AddDoctorDialog from "./AddDoctorDialog";
 import EditDoctorDialog from "./EditDoctorDialog";
 
+type DoctorWithAppointmentCount = Doctor & {
+  appointmentCount: number;
+};
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../ui/alert-dialog";
+import { toast } from "sonner";
+
 function DoctorsManagement() {
   const { data: doctors = [] } = useGetDoctors();
+  const deleteDoctorMutation = useDeleteDoctor();
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] =
+    useState<DoctorWithAppointmentCount | null>(null);
 
-  const handleEditDoctor = (doctor: Doctor) => {
+  const handleEditDoctor = (doctor: DoctorWithAppointmentCount) => {
     setSelectedDoctor(doctor);
     setIsEditDialogOpen(true);
   };
@@ -38,6 +57,37 @@ function DoctorsManagement() {
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedDoctor(null);
+  };
+
+  const handleDeleteDoctor = (doctor: DoctorWithAppointmentCount) => {
+    setSelectedDoctor(doctor);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedDoctor(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (!selectedDoctor) return;
+
+    deleteDoctorMutation.mutate(selectedDoctor.id, {
+      onSuccess: (result) => {
+        if (result.appointmentCount > 0) {
+          toast.success(
+            `Doctor deleted successfully. ${result.appointmentCount} appointment(s) were also deleted.`,
+          );
+        } else {
+          toast.success("Doctor deleted successfully");
+        }
+        handleCloseDeleteDialog();
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.message || "Failed to delete doctor";
+        toast.error(errorMessage);
+      },
+    });
   };
 
   return (
@@ -127,6 +177,15 @@ function DoctorsManagement() {
                     <EditIcon className="size-4 mr-1" />
                     Edit
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => handleDeleteDoctor(doctor)}
+                  >
+                    <TrashIcon className="size-4 mr-1" />
+                    Delete
+                  </Button>
                 </div>
               </div>
             ))}
@@ -145,6 +204,49 @@ function DoctorsManagement() {
         onClose={handleCloseEditDialog}
         doctor={selectedDoctor}
       />
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Doctor</AlertDialogTitle>
+            <AlertDialogDescription>
+              {selectedDoctor && selectedDoctor.appointmentCount > 0 ? (
+                <>
+                  Are you sure you want to delete{" "}
+                  <strong>{selectedDoctor.name}</strong>? This action will also
+                  delete{" "}
+                  <strong>
+                    {selectedDoctor.appointmentCount} appointment
+                    {selectedDoctor.appointmentCount > 1 ? "s" : ""}
+                  </strong>{" "}
+                  associated with this doctor. This action cannot be undone.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to delete{" "}
+                  <strong>{selectedDoctor?.name}</strong>? This action cannot be
+                  undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCloseDeleteDialog}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleteDoctorMutation.isPending}
+            >
+              {deleteDoctorMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

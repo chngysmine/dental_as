@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   appointments Appointment[]
+  contacts     Contact[]
 
   @@map("users")
 }
@@ -59,6 +60,29 @@ model Appointment {
 enum Gender {
   MALE
   FEMALE
+}
+
+model Contact {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("contacts")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  contactId String
+  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  content   String
+  senderId  String   // clerkID of sender (user or admin)
+  isAdmin   Boolean  @default(false) // true if sent by admin
+  createdAt DateTime @default(now())
+
+  @@map("messages")
 }
 
 enum AppointmentStatus {

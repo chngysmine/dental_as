@@ -4,10 +4,10 @@ import AdminDashboardClient from "./AdminDashboardClient";
 
 export default async function AdminPage() {
   try {
-    let user;
+    let user: Awaited<ReturnType<typeof currentUser>>;
     try {
       user = await currentUser();
-    } catch (clerkError: any) {
+    } catch (clerkError: unknown) {
       console.error("Clerk API error:", clerkError);
       // If Clerk API fails, redirect to home
       redirect("/");

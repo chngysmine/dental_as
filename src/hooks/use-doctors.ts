@@ -2,6 +2,7 @@
 
 import {
   createDoctor,
+  deleteDoctor,
   getAvailableDoctors,
   getDoctors,
   updateDoctor,
@@ -56,4 +57,18 @@ export function useAvailableDoctors() {
   });
 
   return result;
+}
+
+export function useDeleteDoctor() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteDoctor,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["getDoctors"] });
+      queryClient.invalidateQueries({ queryKey: ["getAvailableDoctors"] });
+      queryClient.invalidateQueries({ queryKey: ["getAppointments"] });
+    },
+    onError: (error) => console.error("Failed to delete doctor:", error),
+  });
 }

@@ -1,18 +1,17 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import AdminDashboardClient from "../admin/AdminDashboardClient";
-import DashboardClient from "./DashboardClient";
-import WelcomeSection from "@/components/dashboard/WelcomeSection";
-import Navbar from "@/components/Navbar";
 import ActivityOverview from "@/components/dashboard/ActivityOverview";
 import MainActions from "@/components/dashboard/MainActions";
+import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import Navbar from "@/components/Navbar";
+import AdminDashboardClient from "../admin/AdminDashboardClient";
 
 export default async function DashboardPage() {
   try {
-    let user;
+    let user: Awaited<ReturnType<typeof currentUser>>;
     try {
       user = await currentUser();
-    } catch (clerkError: any) {
+    } catch (clerkError: unknown) {
       console.error("Clerk API error:", clerkError);
       // If Clerk API fails, redirect to home
       redirect("/");

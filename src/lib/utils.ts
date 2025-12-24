@@ -69,12 +69,12 @@ export function getAvailableTimeSlots(): string[] {
   const slots: string[] = [];
   const startHour = 9; // 9 AM
   const endHour = 17; // 5 PM
-  
+
   for (let hour = startHour; hour < endHour; hour++) {
     slots.push(`${hour.toString().padStart(2, "0")}:00`);
     slots.push(`${hour.toString().padStart(2, "0")}:30`);
   }
-  
+
   return slots;
 }
 
@@ -82,13 +82,13 @@ export function getAvailableTimeSlots(): string[] {
 export function getNext5Days(): string[] {
   const days: string[] = [];
   const today = new Date();
-  
+
   for (let i = 0; i < 5; i++) {
     const date = new Date(today);
     date.setDate(today.getDate() + i);
     const dateString = date.toISOString().split("T")[0];
     days.push(dateString);
   }
-  
+
   return days;
 }

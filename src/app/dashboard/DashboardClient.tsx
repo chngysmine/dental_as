@@ -4,7 +4,13 @@ import Navbar from "../../components/Navbar";
 import { useUser } from "@clerk/nextjs";
 import { CalendarIcon, ClockIcon, CheckCircleIcon } from "lucide-react";
 import { useGetUserAppointments } from "../../hooks/use-appointments";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 
 function LoadingUI() {
   return (
@@ -24,16 +30,32 @@ function LoadingUI() {
 
 function DashboardClient() {
   const { user } = useUser();
-  const { data: appointments = [], isLoading: appointmentsLoading, error: appointmentsError } = useGetUserAppointments();
+  const {
+    data: appointments = [],
+    isLoading: appointmentsLoading,
+    error: appointmentsError,
+  } = useGetUserAppointments();
 
   // Calculate stats
   const now = new Date();
   const upcomingAppointments = appointments.filter((app) => {
-    const appointmentDate = new Date(app.date);
-    return appointmentDate >= now && app.status !== "CANCELLED";
+    try {
+      const appointmentDate = new Date(app.date);
+      // Check if date is valid
+      if (isNaN(appointmentDate.getTime())) {
+        return false;
+      }
+      return appointmentDate >= now && app.status !== "CANCELLED";
+    } catch {
+      return false;
+    }
   });
-  const completedAppointments = appointments.filter((app) => app.status === "COMPLETED");
-  const pendingAppointments = appointments.filter((app) => app.status === "PENDING");
+  const completedAppointments = appointments.filter(
+    (app) => app.status === "COMPLETED",
+  );
+  const pendingAppointments = appointments.filter(
+    (app) => app.status === "PENDING",
+  );
 
   const stats = {
     total: appointments.length,
@@ -60,13 +82,21 @@ function DashboardClient() {
   }
 
   // Format date for display
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const formatDate = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === "string" ? new Date(date) : date;
+      if (isNaN(dateObj.getTime())) {
+        return "Invalid date";
+      }
+      return dateObj.toLocaleDateString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "Invalid date";
+    }
   };
 
   return (
@@ -78,14 +108,17 @@ function DashboardClient() {
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-primary">Dashboard</span>
+              <span className="text-sm font-medium text-primary">
+                Dashboard
+              </span>
             </div>
             <div>
               <h1 className="text-4xl font-bold mb-2">
                 Welcome back, {user?.firstName || "User"}!
               </h1>
               <p className="text-muted-foreground">
-                View your appointments, manage your schedule, and stay connected with your dental care.
+                View your appointments, manage your schedule, and stay connected
+                with your dental care.
               </p>
             </div>
           </div>
@@ -100,12 +133,16 @@ function DashboardClient() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Appointments
+              </CardTitle>
               <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.total}</div>
-              <CardDescription className="text-xs mt-1">All time appointments</CardDescription>
+              <CardDescription className="text-xs mt-1">
+                All time appointments
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -115,8 +152,12 @@ function DashboardClient() {
               <ClockIcon className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-500">{stats.upcoming}</div>
-              <CardDescription className="text-xs mt-1">Scheduled appointments</CardDescription>
+              <div className="text-2xl font-bold text-blue-500">
+                {stats.upcoming}
+              </div>
+              <CardDescription className="text-xs mt-1">
+                Scheduled appointments
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -126,8 +167,12 @@ function DashboardClient() {
               <CheckCircleIcon className="h-4 w-4 text-green-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-500">{stats.completed}</div>
-              <CardDescription className="text-xs mt-1">Finished appointments</CardDescription>
+              <div className="text-2xl font-bold text-green-500">
+                {stats.completed}
+              </div>
+              <CardDescription className="text-xs mt-1">
+                Finished appointments
+              </CardDescription>
             </CardContent>
           </Card>
 
@@ -137,8 +182,12 @@ function DashboardClient() {
               <ClockIcon className="h-4 w-4 text-orange-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-500">{stats.pending}</div>
-              <CardDescription className="text-xs mt-1">Awaiting confirmation</CardDescription>
+              <div className="text-2xl font-bold text-orange-500">
+                {stats.pending}
+              </div>
+              <CardDescription className="text-xs mt-1">
+                Awaiting confirmation
+              </CardDescription>
             </CardContent>
           </Card>
         </div>
@@ -147,7 +196,9 @@ function DashboardClient() {
         <Card>
           <CardHeader>
             <CardTitle>Your Appointments</CardTitle>
-            <CardDescription>View and manage your upcoming and past appointments</CardDescription>
+            <CardDescription>
+              View and manage your upcoming and past appointments
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {appointments.length === 0 ? (
@@ -167,17 +218,19 @@ function DashboardClient() {
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-                        {appointment.doctor?.imageUrl && appointment.doctor.imageUrl.trim() ? (
+                        {appointment.doctor?.imageUrl &&
+                        appointment.doctor.imageUrl.trim() ? (
                           <img
                             src={appointment.doctor.imageUrl}
                             alt={appointment.doctor?.name || "Doctor"}
                             className="w-12 h-12 rounded-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
+                              target.style.display = "none";
                               const parent = target.parentElement;
-                              if (parent && !parent.querySelector('span')) {
-                                const name = appointment.doctor?.name || "Doctor";
+                              if (parent && !parent.querySelector("span")) {
+                                const name =
+                                  appointment.doctor?.name || "Doctor";
                                 const initial = name.charAt(0).toUpperCase();
                                 parent.innerHTML = `<span class="text-primary font-semibold text-lg">${initial}</span>`;
                               }
@@ -185,14 +238,19 @@ function DashboardClient() {
                           />
                         ) : (
                           <span className="text-primary font-semibold text-lg">
-                            {(appointment.doctor?.name || "D").charAt(0).toUpperCase()}
+                            {(appointment.doctor?.name || "D")
+                              .charAt(0)
+                              .toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div>
-                        <div className="font-semibold">{appointment.doctor?.name || "Unknown Doctor"}</div>
+                        <div className="font-semibold">
+                          {appointment.doctor?.name || "Unknown Doctor"}
+                        </div>
                         <div className="text-sm text-muted-foreground">
-                          {appointment.doctor?.speciality || "General Dentistry"}
+                          {appointment.doctor?.speciality ||
+                            "General Dentistry"}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
                           {formatDate(appointment.date)} at {appointment.time}
@@ -205,10 +263,10 @@ function DashboardClient() {
                           appointment.status === "COMPLETED"
                             ? "bg-green-100 text-green-800"
                             : appointment.status === "CONFIRMED"
-                            ? "bg-blue-100 text-blue-800"
-                            : appointment.status === "PENDING"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-blue-100 text-blue-800"
+                              : appointment.status === "PENDING"
+                                ? "bg-orange-100 text-orange-800"
+                                : "bg-red-100 text-red-800"
                         }`}
                       >
                         {appointment.status}
@@ -226,7 +284,3 @@ function DashboardClient() {
 }
 
 export default DashboardClient;
-
-
-
-

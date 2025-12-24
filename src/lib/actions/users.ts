@@ -29,8 +29,8 @@ export async function syncUser() {
     let existingUser;
     try {
       existingUser = await prisma.user.findUnique({
-      where: { clerkID: user.id },
-    });
+        where: { clerkID: user.id },
+      });
     } catch (dbError: any) {
       console.error("Database connection error:", dbError);
       // If database is unreachable, return null instead of crashing
@@ -66,7 +66,7 @@ export async function syncUser() {
       // If database is unreachable, return null instead of crashing
       return null;
     }
-    
+
     return dbUser;
   } catch (error) {
     console.error("Error syncing user:", error);

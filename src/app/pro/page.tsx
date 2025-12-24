@@ -68,22 +68,27 @@ export default async function ProPage() {
               </div>
 
               <div>
-                <h1 className="text-4xl font-bold mb-3 text-[#f7eee3]">Unlock Premium AI Dental Care</h1>
+                <h1 className="text-4xl font-bold mb-3 text-[#f7eee3]">
+                  Unlock Premium AI Dental Care
+                </h1>
                 <p className="text-[#d5c6b6]">
-                  Get unlimited AI consultations, advanced features, and priority support to take
-                  your dental health to the next level.
+                  Get unlimited AI consultations, advanced features, and
+                  priority support to take your dental health to the next level.
                 </p>
               </div>
             </div>
 
             <div className="hidden lg:block">
               <div className="w-32 h-32 bg-gradient-to-br from-primary/70 via-primary/60 to-primary/40 rounded-full flex items-center justify-center shadow-[0_10px_40px_-18px_rgba(37,99,235,0.8)]">
-                <CrownIcon className="w-16 h-16 text-primary" strokeWidth={1.5} />
+                <CrownIcon
+                  className="w-16 h-16 text-primary"
+                  strokeWidth={1.5}
+                />
               </div>
             </div>
           </div>
         </div>
-{/* 
+        {/* 
         <div className="space-y-10">
           <div className="text-center space-y-3">
             <h2 className="text-3xl font-extrabold text-[#f7eee3] tracking-wide">Choose Your Plan</h2>

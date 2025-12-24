@@ -24,7 +24,9 @@ function VapiWidget() {
     const apiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY;
     if (!apiKey) {
       console.error("VAPI: API key not found in environment variables");
-      setError("VAPI API key chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_API_KEY vào .env.local");
+      setError(
+        "VAPI API key chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_API_KEY vào .env.local",
+      );
       return;
     }
 
@@ -42,7 +44,8 @@ function VapiWidget() {
   // auto-scroll for messages
   useEffect(() => {
     if (messageContainerRef.current) {
-      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+      messageContainerRef.current.scrollTop =
+        messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -88,46 +91,82 @@ function VapiWidget() {
       console.error("Vapi Error:", error);
       console.error("Error stringified:", JSON.stringify(error, null, 2));
 
-      // Extract error information from VAPI error structure
+      // Extract error information from VAPI/Daily.co error structure
+      // Daily.co errors can have: error.error.message.msg or error.error.error.msg
       const errorMessage =
+        error?.error?.message?.msg ||
+        error?.error?.error?.msg ||
         error?.error?.message?.message ||
         error?.error?.error?.message ||
         error?.error?.message ||
-        error?.message;
+        error?.errorMsg ||
+        error?.message ||
+        error?.msg;
 
-      // Ignore benign "meeting ended" errors so they don't scare users in console/UI
+      // Ignore benign "meeting ended" or "ejected" errors so they don't scare users in console/UI
+      const errorType =
+        error?.error?.error?.type || error?.error?.type || error?.type;
+      const isEjected = errorType === "ejected" || errorType === "daily-error";
+
       if (
-        typeof errorMessage === "string" &&
-        errorMessage.toLowerCase().includes("meeting has ended")
+        (typeof errorMessage === "string" &&
+          (errorMessage.toLowerCase().includes("meeting has ended") ||
+            errorMessage.toLowerCase().includes("meeting ended"))) ||
+        isEjected
       ) {
-        console.info("Vapi: meeting ended normally:", errorMessage);
+        console.info(
+          "Vapi: meeting ended normally:",
+          errorMessage || errorType,
+        );
         setConnecting(false);
         setCallActive(false);
         setCallEnded(true);
+        setIsSpeaking(false);
         return;
       }
 
-      const statusCode = error?.error?.message?.statusCode || error?.error?.error?.statusCode || error?.statusCode || error?.status;
-      const errorType = error?.error?.error?.error || error?.error?.error || error?.type;
-      
-      console.error("Extracted error info:", { errorMessage, statusCode, errorType });
-      
+      const statusCode =
+        error?.error?.message?.statusCode ||
+        error?.error?.error?.statusCode ||
+        error?.statusCode ||
+        error?.status;
+
+      console.error("Extracted error info:", {
+        errorMessage,
+        statusCode,
+        errorType,
+      });
+
       if (statusCode === 403 || errorType === "Forbidden") {
         // Check if it's an assistant permission issue
-        if (errorMessage && errorMessage.includes("doesn't allow assistantId")) {
+        if (
+          errorMessage &&
+          errorMessage.includes("doesn't allow assistantId")
+        ) {
           const assistantId = process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID;
           const errorMsg = `API key không có quyền truy cập Assistant này. Vui lòng kiểm tra trong VAPI Dashboard (https://dashboard.vapi.ai): 1) Đảm bảo API key có quyền truy cập Assistant ID: ${assistantId} 2) Hoặc tạo API key mới với quyền truy cập Assistant này 3) Hoặc sử dụng Assistant ID khác mà API key có quyền truy cập`;
-          console.error("VAPI 403: API key doesn't have permission for this Assistant ID");
+          console.error(
+            "VAPI 403: API key doesn't have permission for this Assistant ID",
+          );
           setError(errorMsg);
         } else {
-          const errorMsg = "Lỗi 403: API key không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra NEXT_PUBLIC_VAPI_API_KEY trong .env.local";
-          console.error("VAPI 403 Forbidden - API key may be invalid or expired");
+          const errorMsg =
+            "Lỗi 403: API key không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra NEXT_PUBLIC_VAPI_API_KEY trong .env.local";
+          console.error(
+            "VAPI 403 Forbidden - API key may be invalid or expired",
+          );
           setError(errorMsg);
         }
       } else if (errorMessage) {
         setError(`Lỗi kết nối: ${errorMessage}`);
-      } else if (error && typeof error === 'object' && Object.keys(error).length === 0) {
-        setError("Không thể kết nối với VAPI. Vui lòng kiểm tra API key và Assistant ID, sau đó khởi động lại server.");
+      } else if (
+        error &&
+        typeof error === "object" &&
+        Object.keys(error).length === 0
+      ) {
+        setError(
+          "Không thể kết nối với VAPI. Vui lòng kiểm tra API key và Assistant ID, sau đó khởi động lại server.",
+        );
       } else {
         setError("Không thể kết nối cuộc gọi. Vui lòng thử lại.");
       }
@@ -174,7 +213,8 @@ function VapiWidget() {
 
       // Check if VAPI client is initialized
       if (!vapiClient) {
-        const errorMsg = "VAPI client chưa được khởi tạo. Vui lòng đợi một chút và thử lại.";
+        const errorMsg =
+          "VAPI client chưa được khởi tạo. Vui lòng đợi một chút và thử lại.";
         console.error("VAPI client not initialized");
         setError(errorMsg);
         setConnecting(false);
@@ -196,24 +236,31 @@ function VapiWidget() {
       });
 
       if (!apiKey) {
-        const errorMsg = "VAPI API key chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_API_KEY vào .env.local";
-        console.error("VAPI API key is missing. Please set NEXT_PUBLIC_VAPI_API_KEY in .env.local");
+        const errorMsg =
+          "VAPI API key chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_API_KEY vào .env.local";
+        console.error(
+          "VAPI API key is missing. Please set NEXT_PUBLIC_VAPI_API_KEY in .env.local",
+        );
         setError(errorMsg);
         setConnecting(false);
         return;
       }
 
       if (!assistantId) {
-        const errorMsg = "VAPI Assistant ID chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_ASSISTANT_ID vào .env.local";
-        console.error("VAPI Assistant ID is missing. Please set NEXT_PUBLIC_VAPI_ASSISTANT_ID in .env.local");
+        const errorMsg =
+          "VAPI Assistant ID chưa được cấu hình. Vui lòng thêm NEXT_PUBLIC_VAPI_ASSISTANT_ID vào .env.local";
+        console.error(
+          "VAPI Assistant ID is missing. Please set NEXT_PUBLIC_VAPI_ASSISTANT_ID in .env.local",
+        );
         setError(errorMsg);
         setConnecting(false);
         return;
       }
 
       // Check if vapi client has start method
-      if (typeof vapiClient.start !== 'function') {
-        const errorMsg = "VAPI client không hợp lệ. Vui lòng kiểm tra API key và khởi động lại server.";
+      if (typeof vapiClient.start !== "function") {
+        const errorMsg =
+          "VAPI client không hợp lệ. Vui lòng kiểm tra API key và khởi động lại server.";
         console.error("VAPI client missing start method:", vapiClient);
         setError(errorMsg);
         setConnecting(false);
@@ -222,10 +269,13 @@ function VapiWidget() {
 
       // Check microphone permission
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop()); // Stop immediately, VAPI will request its own
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+        stream.getTracks().forEach((track) => track.stop()); // Stop immediately, VAPI will request its own
       } catch (micError: any) {
-        const errorMsg = "Không thể truy cập microphone. Vui lòng cấp quyền microphone trong trình duyệt.";
+        const errorMsg =
+          "Không thể truy cập microphone. Vui lòng cấp quyền microphone trong trình duyệt.";
         console.error("Microphone permission denied:", micError);
         setError(errorMsg);
         setConnecting(false);
@@ -241,7 +291,10 @@ function VapiWidget() {
       }, 10000); // 10 second timeout
 
       try {
-        console.log("Attempting to start VAPI call with Assistant ID:", assistantId);
+        console.log(
+          "Attempting to start VAPI call with Assistant ID:",
+          assistantId,
+        );
         console.log("VAPI client:", vapiClient);
         const result = await vapiClient.start(assistantId);
         console.log("VAPI start result:", result);
@@ -261,15 +314,27 @@ function VapiWidget() {
       }
     } catch (error: any) {
       console.error("Failed to start call:", error);
-      const status = error?.status || error?.statusCode || error?.response?.status;
-      const message = error?.message || error?.error?.message || error?.response?.data?.message;
-      
+      const status =
+        error?.status || error?.statusCode || error?.response?.status;
+      const message =
+        error?.message ||
+        error?.error?.message ||
+        error?.response?.data?.message;
+
       if (status === 403) {
-        setError("Lỗi 403: API key không hợp lệ hoặc không có quyền truy cập Assistant này. Vui lòng kiểm tra lại trong VAPI dashboard.");
+        setError(
+          "Lỗi 403: API key không hợp lệ hoặc không có quyền truy cập Assistant này. Vui lòng kiểm tra lại trong VAPI dashboard.",
+        );
       } else if (message) {
         setError(`Lỗi: ${message}`);
-      } else if (error && typeof error === 'object' && Object.keys(error).length === 0) {
-        setError("Không thể khởi tạo cuộc gọi. Vui lòng kiểm tra API key và Assistant ID trong .env.local và khởi động lại server.");
+      } else if (
+        error &&
+        typeof error === "object" &&
+        Object.keys(error).length === 0
+      ) {
+        setError(
+          "Không thể khởi tạo cuộc gọi. Vui lòng kiểm tra API key và Assistant ID trong .env.local và khởi động lại server.",
+        );
       } else {
         setError("Không thể bắt đầu cuộc gọi. Vui lòng thử lại sau.");
       }
@@ -288,7 +353,8 @@ function VapiWidget() {
           <span className="text-primary uppercase">AI Dental Assistant</span>
         </h1>
         <p className="text-muted-foreground mt-2">
-          Have a voice conversation with our AI assistant for dental advice and guidance
+          Have a voice conversation with our AI assistant for dental advice and
+          guidance
         </p>
       </div>
 
@@ -343,7 +409,9 @@ function VapiWidget() {
             </div>
 
             <h2 className="text-xl font-bold text-foreground">DentWise AI</h2>
-            <p className="text-sm text-muted-foreground mt-1">Dental Assistant</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Dental Assistant
+            </p>
 
             {/* SPEAKING INDICATOR */}
             <div
@@ -361,17 +429,19 @@ function VapiWidget() {
                 {isSpeaking
                   ? "Speaking..."
                   : callActive
-                  ? "Listening..."
-                  : callEnded
-                  ? "Call ended"
-                  : "Waiting..."}
+                    ? "Listening..."
+                    : callEnded
+                      ? "Call ended"
+                      : "Waiting..."}
               </span>
             </div>
           </div>
         </Card>
 
         {/* USER CARD */}
-        <Card className={`bg-card/90 backdrop-blur-sm border overflow-hidden relative`}>
+        <Card
+          className={`bg-card/90 backdrop-blur-sm border overflow-hidden relative`}
+        >
           <div className="aspect-video flex flex-col items-center justify-center p-6 relative">
             {/* User Image */}
             <div className="relative size-32 mb-4">
@@ -386,11 +456,15 @@ function VapiWidget() {
 
             <h2 className="text-xl font-bold text-foreground">You</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {user ? (user.firstName + " " + (user.lastName || "")).trim() : "Guest"}
+              {user
+                ? (user.firstName + " " + (user.lastName || "")).trim()
+                : "Guest"}
             </p>
 
             {/* User Ready Text */}
-            <div className={`mt-4 flex items-center gap-2 px-3 py-1 rounded-full bg-card border`}>
+            <div
+              className={`mt-4 flex items-center gap-2 px-3 py-1 rounded-full bg-card border`}
+            >
               <div className={`w-2 h-2 rounded-full bg-muted`} />
               <span className="text-xs text-muted-foreground">Ready</span>
             </div>
@@ -406,7 +480,10 @@ function VapiWidget() {
         >
           <div className="space-y-3">
             {messages.map((msg, index) => (
-              <div key={index} className="message-item animate-in fade-in duration-300">
+              <div
+                key={index}
+                className="message-item animate-in fade-in duration-300"
+              >
                 <div className="font-semibold text-xs text-muted-foreground mb-1">
                   {msg.role === "assistant" ? "DentWise AI" : "You"}:
                 </div>
@@ -416,8 +493,12 @@ function VapiWidget() {
 
             {callEnded && (
               <div className="message-item animate-in fade-in duration-300">
-                <div className="font-semibold text-xs text-primary mb-1">System:</div>
-                <p className="text-foreground">Call ended. Thank you for using DentWise AI!</p>
+                <div className="font-semibold text-xs text-primary mb-1">
+                  System:
+                </div>
+                <p className="text-foreground">
+                  Call ended. Thank you for using DentWise AI!
+                </p>
               </div>
             )}
           </div>
@@ -444,8 +525,8 @@ function VapiWidget() {
             callActive
               ? "bg-destructive hover:bg-destructive/90"
               : callEnded
-              ? "bg-red-500 hover:bg-red-700"
-              : "bg-primary hover:bg-primary/90"
+                ? "bg-red-500 hover:bg-red-700"
+                : "bg-primary hover:bg-primary/90"
           } text-white relative`}
           onClick={toggleCall}
           disabled={connecting || callEnded}
@@ -458,14 +539,16 @@ function VapiWidget() {
             {callActive
               ? "End Call"
               : connecting
-              ? "Connecting..."
-              : callEnded
-              ? "Call Ended"
-              : "Start Call"}
+                ? "Connecting..."
+                : callEnded
+                  ? "Call Ended"
+                  : "Start Call"}
           </span>
         </Button>
         {!error && connecting && (
-          <p className="text-sm text-muted-foreground">Connecting to AI Assistant...</p>
+          <p className="text-sm text-muted-foreground">
+            Connecting to AI Assistant...
+          </p>
         )}
       </div>
     </div>

@@ -1,5 +1,9 @@
 import { useBookedTimeSlots } from "@/hooks/use-appointment";
-import { APPOINTMENT_TYPES, getAvailableTimeSlots, getNext5Days } from "@/lib/utils";
+import {
+  APPOINTMENT_TYPES,
+  getAvailableTimeSlots,
+  getNext5Days,
+} from "@/lib/utils";
 import { Button } from "../ui/button";
 import { ChevronLeftIcon, ClockIcon } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
@@ -27,7 +31,10 @@ function TimeSelectionStep({
   selectedTime,
   selectedType,
 }: TimeSelectionStepProps) {
-  const { data: bookedTimeSlots = [] } = useBookedTimeSlots(selectedDentistId, selectedDate);
+  const { data: bookedTimeSlots = [] } = useBookedTimeSlots(
+    selectedDentistId,
+    selectedDate,
+  );
 
   const availableDates = getNext5Days();
   const availableTimeSlots = getAvailableTimeSlots();
@@ -55,25 +62,36 @@ function TimeSelectionStep({
         <div className="space-y-4">
           <h3 className="text-lg font-medium">Appointment Type</h3>
           <div className="space-y-3">
-            {APPOINTMENT_TYPES.map((type: { id: string; name: string; duration: string; price: string }) => (
-              <Card
-                key={type.id}
-                className={`cursor-pointer transition-all hover:shadow-sm ${
-                  selectedType === type.id ? "ring-2 ring-primary" : ""
-                }`}
-                onClick={() => onTypeChange(type.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-medium">{type.name}</h4>
-                      <p className="text-sm text-muted-foreground">{type.duration}</p>
+            {APPOINTMENT_TYPES.map(
+              (type: {
+                id: string;
+                name: string;
+                duration: string;
+                price: string;
+              }) => (
+                <Card
+                  key={type.id}
+                  className={`cursor-pointer transition-all hover:shadow-sm ${
+                    selectedType === type.id ? "ring-2 ring-primary" : ""
+                  }`}
+                  onClick={() => onTypeChange(type.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h4 className="font-medium">{type.name}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {type.duration}
+                        </p>
+                      </div>
+                      <span className="font-semibold text-primary">
+                        {type.price}
+                      </span>
                     </div>
-                    <span className="font-semibold text-primary">{type.price}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ),
+            )}
           </div>
         </div>
 
@@ -117,7 +135,9 @@ function TimeSelectionStep({
                       onClick={() => !isBooked && onTimeChange(time)}
                       size="sm"
                       disabled={isBooked}
-                      className={isBooked ? "opacity-50 cursor-not-allowed" : ""}
+                      className={
+                        isBooked ? "opacity-50 cursor-not-allowed" : ""
+                      }
                     >
                       <ClockIcon className="w-3 h-3 mr-1" />
                       {time}

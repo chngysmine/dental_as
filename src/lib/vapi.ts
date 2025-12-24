@@ -25,20 +25,30 @@ const createClient = (): any => {
     console.warn("VAPI: Server-side rendering detected, using stub client.");
     return createStub();
   }
-  
+
   const apiKey = process.env.NEXT_PUBLIC_VAPI_API_KEY;
   if (!apiKey) {
     console.warn("VAPI: Missing NEXT_PUBLIC_VAPI_API_KEY; using stub client.");
     return createStub();
   }
-  
+
   // Validate API key format (should be a UUID)
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(apiKey)) {
-    console.warn("VAPI: API key format appears invalid. Expected UUID format. Got:", apiKey.substring(0, 8) + "...");
+  if (
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      apiKey,
+    )
+  ) {
+    console.warn(
+      "VAPI: API key format appears invalid. Expected UUID format. Got:",
+      apiKey.substring(0, 8) + "...",
+    );
   }
-  
+
   try {
-    console.log("VAPI: Initializing client with API key:", apiKey.substring(0, 8) + "...");
+    console.log(
+      "VAPI: Initializing client with API key:",
+      `${apiKey.substring(0, 8)}...`,
+    );
     const client = new Vapi(apiKey);
     console.log("VAPI: Client initialized successfully");
     return client;

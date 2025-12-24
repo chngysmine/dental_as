@@ -18,7 +18,12 @@ import { updateAppointmentStatus } from "@/lib/actions/appointments";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const statusOrder: AppointmentStatus[] = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
+const statusOrder: AppointmentStatus[] = [
+  "PENDING",
+  "CONFIRMED",
+  "COMPLETED",
+  "CANCELLED",
+];
 
 function getNextStatus(currentStatus: AppointmentStatus): AppointmentStatus {
   const currentIndex = statusOrder.indexOf(currentStatus);
@@ -30,7 +35,9 @@ function formatStatus(status: AppointmentStatus): string {
   return status.charAt(0) + status.slice(1).toLowerCase();
 }
 
-function getStatusVariant(status: AppointmentStatus): "default" | "secondary" | "destructive" | "outline" {
+function getStatusVariant(
+  status: AppointmentStatus,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "CONFIRMED":
       return "default";
@@ -52,7 +59,12 @@ export default function RecentAppointments() {
   const updateStatusMutation = useMutation({
     mutationFn: updateAppointmentStatus,
     onSuccess: () => {
+      // Invalidate both admin and user appointment queries to force refresh
       queryClient.invalidateQueries({ queryKey: ["getAppointments"] });
+      queryClient.invalidateQueries({ queryKey: ["getUserAppointments"] });
+      // Also refetch immediately to ensure data is up to date
+      queryClient.refetchQueries({ queryKey: ["getAppointments"] });
+      queryClient.refetchQueries({ queryKey: ["getUserAppointments"] });
       toast.success("Appointment status updated");
     },
     onError: (error: Error) => {
@@ -60,7 +72,10 @@ export default function RecentAppointments() {
     },
   });
 
-  const handleStatusClick = (appointmentId: string, currentStatus: AppointmentStatus) => {
+  const handleStatusClick = (
+    appointmentId: string,
+    currentStatus: AppointmentStatus,
+  ) => {
     const newStatus = getNextStatus(currentStatus);
     updateStatusMutation.mutate({ id: appointmentId, status: newStatus });
   };
@@ -111,7 +126,9 @@ export default function RecentAppointments() {
                 <TableRow key={appointment.id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{appointment.patientName || "Unknown"}</p>
+                      <p className="font-medium">
+                        {appointment.patientName || "Unknown"}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {appointment.patientEmail}
                       </p>
@@ -130,7 +147,9 @@ export default function RecentAppointments() {
                     <Badge
                       variant={getStatusVariant(appointment.status)}
                       className="cursor-pointer hover:opacity-80 transition-opacity"
-                      onClick={() => handleStatusClick(appointment.id, appointment.status)}
+                      onClick={() =>
+                        handleStatusClick(appointment.id, appointment.status)
+                      }
                     >
                       {formatStatus(appointment.status)}
                     </Badge>
@@ -149,4 +168,3 @@ export default function RecentAppointments() {
     </Card>
   );
 }
-

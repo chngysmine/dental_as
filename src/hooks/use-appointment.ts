@@ -1,6 +1,10 @@
 "use client";
 
-import { bookAppointment, getBookedTimeSlots, getUserAppointments } from "@/lib/actions/appointments";
+import {
+  bookAppointment,
+  getBookedTimeSlots,
+  getUserAppointments,
+} from "@/lib/actions/appointments";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useUserAppointments() {
@@ -23,4 +27,3 @@ export function useBookedTimeSlots(doctorId: string, date: string) {
     enabled: !!doctorId && !!date,
   });
 }
-

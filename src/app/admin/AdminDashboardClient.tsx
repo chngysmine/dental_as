@@ -1,13 +1,17 @@
 "use client";
 
-import Navbar from "../../components/Navbar";
 import { useUser } from "@clerk/nextjs";
 import { Settings as SettingsIcon } from "lucide-react";
-import { useGetDoctors } from "../../hooks/use-doctors";
-import { useGetAppointments } from "../../hooks/use-appointments";
-import AdminStats from "../../components/admin/AdminStats";
+import { useState } from "react";
+import ChatDialog from "@/components/admin/ChatDialog";
+import ContactList from "@/components/admin/ContactList";
 import DoctorsManagement from "@/components/admin/DoctorsManagement";
 import RecentAppointments from "@/components/admin/RecentAppointments";
+import { useGetContacts } from "@/hooks/use-contacts";
+import AdminStats from "../../components/admin/AdminStats";
+import Navbar from "../../components/Navbar";
+import { useGetAppointments } from "../../hooks/use-appointments";
+import { useGetDoctors } from "../../hooks/use-doctors";
 
 function LoadingUI() {
   return (
@@ -46,6 +50,10 @@ type AppointmentWithRelations = {
 
 function AdminDashboardClient() {
   const { user } = useUser();
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(
+    null,
+  );
+  const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const {
     data: doctors = [],
     isLoading: doctorsLoading,
@@ -56,6 +64,7 @@ function AdminDashboardClient() {
     isLoading: appointmentsLoading,
     error: appointmentsError,
   } = useGetAppointments();
+  const { data: contacts = [] } = useGetContacts();
 
   // Type assertion for appointments
   const typedAppointments = appointments as AppointmentWithRelations[];
@@ -68,6 +77,27 @@ function AdminDashboardClient() {
     completedAppointments: typedAppointments.filter(
       (app) => app.status === "COMPLETED",
     ).length,
+  };
+
+  // Get selected contact info
+  type Contact = {
+    id: string;
+    userId: string;
+    userEmail: string;
+    userName: string;
+    latestMessage: string | null;
+    latestMessageTime: Date | string | null;
+    messageCount: number;
+    createdAt: Date | string;
+    updatedAt: Date | string;
+  };
+  const selectedContact = contacts.find(
+    (c: Contact) => c.id === selectedContactId,
+  );
+
+  const handleContactSelect = (contactId: string) => {
+    setSelectedContactId(contactId);
+    setChatDialogOpen(true);
   };
 
   if (doctorsLoading || appointmentsLoading) {
@@ -131,7 +161,24 @@ function AdminDashboardClient() {
         <div className="mt-8">
           <DoctorsManagement />
         </div>
+        <div className="mt-8">
+          <ContactList
+            selectedContactId={selectedContactId}
+            onContactSelect={handleContactSelect}
+          />
+        </div>
       </div>
+
+      {selectedContact && (
+        <ChatDialog
+          contactId={selectedContact.id}
+          userName={selectedContact.userName}
+          userEmail={selectedContact.userEmail}
+          open={chatDialogOpen}
+          onOpenChange={setChatDialogOpen}
+          isAdminView={true}
+        />
+      )}
     </div>
   );
 }

@@ -4,11 +4,14 @@ import { useUser, SignOutButton, UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { HomeIcon, Calendar, Mic, Crown } from "lucide-react";
+import { HomeIcon, Calendar, Mic, Crown, MessageSquare } from "lucide-react";
 
 function Navbar() {
   const { user } = useUser();
   const pathname = usePathname();
+
+  // Show Contact menu if user is on admin pages or if pathname starts with /admin
+  const isAdmin = pathname.startsWith("/admin");
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-6 py-2 border-b border-border/50 bg-background/80 backdrop-blur-md h-16">
@@ -39,7 +42,9 @@ function Navbar() {
             <Link
               href="/appointments"
               className={`flex items-center gap-2 transition-colors hover:text-orange-500 ${
-                pathname === "/appointments" ? "text-foreground" : "text-muted-foreground"
+                pathname === "/appointments"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -48,7 +53,9 @@ function Navbar() {
             <Link
               href="/voice"
               className={`flex items-center gap-2 transition-colors hover:text-orange-500 ${
-                pathname === "/voice" ? "text-foreground" : "text-muted-foreground"
+                pathname === "/voice"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
               }`}
             >
               <Mic className="w-4 h-4" />
@@ -57,12 +64,27 @@ function Navbar() {
             <Link
               href="/pro"
               className={`flex items-center gap-2 transition-colors hover:text-orange-500 ${
-                pathname === "/pro" ? "text-foreground" : "text-muted-foreground"
+                pathname === "/pro"
+                  ? "text-foreground"
+                  : "text-muted-foreground"
               }`}
             >
               <Crown className="w-4 h-4" />
               <span className="hidden md:inline">Pro</span>
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin/contact"
+                className={`flex items-center gap-2 transition-colors hover:text-orange-500 ${
+                  pathname === "/admin/contact"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span className="hidden md:inline">Contact</span>
+              </Link>
+            )}
           </div>
         </div>
         {/* RIGHT SECTION - USER INFO */}
@@ -93,4 +115,3 @@ function Navbar() {
 }
 
 export default Navbar;
-

@@ -20,10 +20,13 @@ function isDatabaseConnectionError(error: any): boolean {
 function transformAppointment(appointment: any) {
   return {
     ...appointment,
-    patientName: `${appointment.user.firstName || ""} ${appointment.user.lastName || ""}`.trim(),
-    patientEmail: appointment.user.email,
-    doctorName: appointment.doctor.name,
-    doctorImageUrl: appointment.doctor.imageUrl || "",
+    patientName:
+      `${appointment.user?.firstName || ""} ${appointment.user?.lastName || ""}`.trim(),
+    patientEmail: appointment.user?.email || "",
+    doctorName: appointment.doctor?.name || "",
+    doctorImageUrl: appointment.doctor?.imageUrl || "",
+    // Keep the doctor object for backward compatibility and easier access
+    doctor: appointment.doctor || null,
     date:
       appointment.date instanceof Date
         ? appointment.date.toISOString().split("T")[0]
@@ -54,7 +57,9 @@ export async function getAppointments() {
       console.error("Database connection error - returning empty array");
       return [];
     }
-    console.error("Unexpected error fetching appointments, returning empty array");
+    console.error(
+      "Unexpected error fetching appointments, returning empty array",
+    );
     return [];
   }
 }
@@ -231,7 +236,8 @@ interface BookAppointmentInput {
 export async function bookAppointment(input: BookAppointmentInput) {
   try {
     const { userId } = await auth();
-    if (!userId) throw new Error("You must be logged in to book an appointment");
+    if (!userId)
+      throw new Error("You must be logged in to book an appointment");
 
     if (!input.doctorId || !input.date || !input.time) {
       throw new Error("Doctor, date, and time are required");
@@ -315,6 +321,11 @@ export async function updateAppointmentStatus(input: {
       data: { status: input.status },
     });
 
+    // Revalidate paths so both admin and user pages reflect the updated status
+    revalidatePath("/admin");
+    revalidatePath("/dashboard");
+    revalidatePath("/appointments");
+
     return appointment;
   } catch (error: any) {
     if (
@@ -333,5 +344,3 @@ export async function updateAppointmentStatus(input: {
     throw new Error("Failed to update appointment");
   }
 }
-
-

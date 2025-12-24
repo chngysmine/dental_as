@@ -21,7 +21,10 @@ export async function getDoctors() {
   } catch (error: any) {
     console.error("Error fetching doctors:", error);
     // If database connection fails, return empty array instead of throwing
-    if (error?.code === "P1001" || error?.message?.includes("Can't reach database server")) {
+    if (
+      error?.code === "P1001" ||
+      error?.message?.includes("Can't reach database server")
+    ) {
       console.error("Database connection error - returning empty array");
       return [];
     }
@@ -145,10 +148,54 @@ export async function getAvailableDoctors() {
   } catch (error: any) {
     console.error("Error fetching available doctors:", error);
     // If database connection fails, return empty array instead of throwing
-    if (error?.code === "P1001" || error?.message?.includes("Can't reach database server")) {
+    if (
+      error?.code === "P1001" ||
+      error?.message?.includes("Can't reach database server")
+    ) {
       console.error("Database connection error - returning empty array");
       return [];
     }
     throw new Error("Failed to fetch available doctors");
+  }
+}
+
+export async function deleteDoctor(id: string) {
+  try {
+    // Check if doctor exists and get appointment count
+    const doctor = await prisma.doctor.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { appointments: true },
+        },
+      },
+    });
+
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    const appointmentCount = doctor._count.appointments;
+
+    // Delete doctor (cascade delete will automatically delete related appointments)
+    await prisma.doctor.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin");
+
+    return {
+      success: true,
+      appointmentCount,
+    };
+  } catch (error: any) {
+    console.error("Error deleting doctor:", error);
+
+    // Preserve specific error messages
+    if (error?.message && error.message !== "Failed to delete doctor") {
+      throw error;
+    }
+
+    throw new Error("Failed to delete doctor");
   }
 }

@@ -5,6 +5,7 @@ import UserSync from "../components/UserSync";
 import "./globals.css";
 import TanStackProvider from "../components/providers/TanStackProvider";
 import { Toaster } from "../components/ui/sonner";
+import ChatbotButton from "../components/contact/ChatbotButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             <UserSync />
             <Toaster />
             {children}
+            <ChatbotButton />
           </body>
         </html>
       </ClerkProvider>

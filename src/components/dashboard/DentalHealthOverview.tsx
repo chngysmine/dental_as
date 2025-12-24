@@ -1,6 +1,12 @@
 import { getUserAppointmentStats } from "@/lib/actions/appointments";
 import { currentUser } from "@clerk/nextjs/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { BrainIcon, MessageSquareIcon } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
@@ -17,7 +23,9 @@ async function DentalHealthOverview() {
           <BrainIcon className="size-5 text-primary" />
           Your Dental Health
         </CardTitle>
-        <CardDescription>Keep track of your dental care journey</CardDescription>
+        <CardDescription>
+          Keep track of your dental care journey
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid md:grid-cols-3 gap-6">
@@ -25,17 +33,23 @@ async function DentalHealthOverview() {
             <div className="text-2xl font-bold text-primary mb-1">
               {appointmentStats.completedAppointments}
             </div>
-            <div className="text-sm text-muted-foreground">Completed Visits</div>
+            <div className="text-sm text-muted-foreground">
+              Completed Visits
+            </div>
           </div>
           <div className="text-center p-4 bg-muted/30 rounded-xl">
             <div className="text-2xl font-bold text-primary mb-1">
               {appointmentStats.totalAppointments}
             </div>
-            <div className="text-sm text-muted-foreground">Total Appointments</div>
+            <div className="text-sm text-muted-foreground">
+              Total Appointments
+            </div>
           </div>
           <div className="text-center p-4 bg-muted/30 rounded-xl">
             <div className="text-2xl font-bold text-primary mb-1">
-              {user?.createdAt ? format(new Date(user.createdAt), "MMM yyyy") : "N/A"}
+              {user?.createdAt
+                ? format(new Date(user.createdAt), "MMM yyyy")
+                : "N/A"}
             </div>
             <div className="text-sm text-muted-foreground">Member Since</div>
           </div>
@@ -47,9 +61,12 @@ async function DentalHealthOverview() {
               <MessageSquareIcon className="size-5 text-primary" />
             </div>
             <div>
-              <h4 className="font-semibold text-primary mb-1">Ready to get started?</h4>
+              <h4 className="font-semibold text-primary mb-1">
+                Ready to get started?
+              </h4>
               <p className="text-sm text-muted-foreground mb-3">
-                Book your first appointment or try our AI voice assistant for instant dental advice.
+                Book your first appointment or try our AI voice assistant for
+                instant dental advice.
               </p>
               <div className="flex gap-2">
                 <Link href="/voice">

@@ -56,7 +56,7 @@ function AddDoctorDialog({ isOpen, onClose }: AddDoctorDialogProps) {
           const errorMessage = error?.message || "Failed to create doctor";
           toast.error(errorMessage);
         },
-      }
+      },
     );
   };
 

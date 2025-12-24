@@ -11,11 +11,13 @@ async function NextAppointment() {
   const upcomingAppointments =
     appointments?.filter((appointment) => {
       // appointment.date is already a string from transformAppointment
-      const appointmentDate = typeof appointment.date === 'string' 
-        ? parseISO(appointment.date) 
-        : new Date(appointment.date);
+      const appointmentDate =
+        typeof appointment.date === "string"
+          ? parseISO(appointment.date)
+          : new Date(appointment.date);
       const today = new Date();
-      const isUpcoming = isSameDay(appointmentDate, today) || isAfter(appointmentDate, today);
+      const isUpcoming =
+        isSameDay(appointmentDate, today) || isAfter(appointmentDate, today);
       return isUpcoming && appointment.status === "CONFIRMED";
     }) || [];
 
@@ -24,9 +26,10 @@ async function NextAppointment() {
 
   if (!nextAppointment) return <NoNextAppointments />;
 
-  const appointmentDate = typeof nextAppointment.date === 'string' 
-    ? parseISO(nextAppointment.date) 
-    : new Date(nextAppointment.date);
+  const appointmentDate =
+    typeof nextAppointment.date === "string"
+      ? parseISO(nextAppointment.date)
+      : new Date(nextAppointment.date);
   const formattedDate = format(appointmentDate, "EEEE, MMMM d, yyyy");
   const isToday = isSameDay(appointmentDate, new Date());
 
@@ -59,8 +62,12 @@ async function NextAppointment() {
               <UserIcon className="size-4 text-primary" />
             </div>
             <div>
-              <p className="font-medium text-sm">{nextAppointment.doctorName}</p>
-              <p className="text-xs text-muted-foreground">{nextAppointment.reason}</p>
+              <p className="font-medium text-sm">
+                {nextAppointment.doctorName}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {nextAppointment.reason}
+              </p>
             </div>
           </div>
 
